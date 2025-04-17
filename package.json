@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@lukeed/uuid": "^2.0.1",
     "autoprefixer": "^10.4.17",
     "daisyui": "^3.9.4",
     "html2canvas": "^1.4.1",
@@ -17,15 +18,13 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
-    "tailwindcss": "^3.4.1",
-    "uuid": "^9.0.1"
+    "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
     "@types/html2canvas": "^1.0.0",
     "@types/node": "^20.11.19",
     "@types/react": "^18.2.57",
     "@types/react-dom": "^18.2.19",
-    "@types/uuid": "^9.0.8",
     "typescript": "^5.3.3"
   }
 }

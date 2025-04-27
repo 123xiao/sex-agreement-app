@@ -156,7 +156,6 @@ export default function CreateAgreement() {
     // 修改为使用前端路由而不是直接导航
     // 对于静态导出，我们可以添加查询参数到基本路径
     // 在协议列表页面，我们会处理这个URL参数
-    debugger
     router.push(`/agreements?view=${agreement.id}`);
   };
 

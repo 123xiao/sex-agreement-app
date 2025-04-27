@@ -24,6 +24,12 @@ export default function Home() {
         <Link href="/agreements" className="btn btn-outline btn-lg w-full">
           查看我的协议
         </Link>
+        <Link href="/signature" className="btn btn-primary btn-lg w-full">
+          测试电子签名
+        </Link>
+        <Link href="/signature" className="btn btn-outline btn-lg w-full">
+          测试电子签名
+        </Link>
       </div>
 
       <div className="mt-12 p-6 bg-base-200 rounded-lg max-w-3xl w-full">

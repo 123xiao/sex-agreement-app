@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import html2canvas from "html2canvas";
+import SignaturePad from "./components/signature_pad";
+import { set } from "react-hook-form";
 
 // 协议类型定义
 interface Agreement {
@@ -23,6 +25,8 @@ interface Agreement {
   party2Signed?: boolean;
   party1SignedAt?: string;
   party2SignedAt?: string;
+  party1Sign: string;
+  party2Sign: string;
 }
 
 // 本地存储键
@@ -36,9 +40,10 @@ export default function AgreementsList() {
   );
   const [party1Signed, setParty1Signed] = useState<boolean>(false);
   const [party2Signed, setParty2Signed] = useState<boolean>(false);
-  const [showDigitalSignature, setShowDigitalSignature] = useState<
-    false | "party1" | "party2"
-  >(false);
+  const [maleSign, setMaleSign] = useState<string>("");
+  const [femaleSign, setFemaleSign] = useState<string>("");
+  const [showDigitalSignature, setShowDigitalSignature] = useState(false);
+  const [isMaleSigning, setIsMaleSigning] = useState(false);
 
   // 处理打印功能
   const handlePrint = () => {
@@ -129,32 +134,48 @@ export default function AgreementsList() {
         ${
           party1Signed || party2Signed
             ? `
-            <div style="margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px;">
-              <h3 style="text-align: center; margin-bottom: 15px;">签名</h3>
-              ${
-                party1Signed && selectedAgreement.party1SignedAt
-                  ? `
-                  <p>${selectedAgreement.party1Name} 已签署</p>
-                  <p>签署时间: ${new Date(
-                    selectedAgreement.party1SignedAt
-                  ).toLocaleString("zh-CN")}</p>
-                `
-                  : ""
-              }
-              ${
-                party2Signed && selectedAgreement.party2SignedAt
-                  ? `
-                  <p>${selectedAgreement.party2Name} 已签署</p>
-                  <p>签署时间: ${new Date(
-                    selectedAgreement.party2SignedAt
-                  ).toLocaleString("zh-CN")}</p>
-                `
-                  : ""
-              }
-            </div>
-          `
+              <div style="margin-top:40px; border-top:1px solid #ddd; padding-top:20px;">
+                  <h3 style="text-align:center; margin-bottom:15px;">签名</h3>
+                  
+                  <!--参与方1签署信息-->
+                  ${
+                    party1Signed && selectedAgreement.party1SignedAt
+                      ? `
+                          <div style="margin-bottom:20px;">
+                              <p>${selectedAgreement.party1Name}已签署</p>
+                              ${
+                                selectedAgreement.party1Sign
+                                  ? `<img src="${selectedAgreement.party1Sign}" alt="${selectedAgreement.party1Name}的签名" style="max-width:200px; max-height:80px; margin-top:10px; border:1px solid #eee;"/>`
+                                  : ""
+                              }
+                              <p>签署时间：${new Date(
+                                selectedAgreement.party1SignedAt
+                              ).toLocaleString("zh-CN")}</p>
+                          </div>`
+                      : ""
+                  }
+                  
+                  <!--参与方2签署信息-->
+                  ${
+                    party2Signed && selectedAgreement.party2SignedAt
+                      ? `
+                          <div style="margin-bottom:20px;">
+                              <p>${selectedAgreement.party2Name}已签署</p>
+                              ${
+                                selectedAgreement.party2Sign
+                                  ? `<img src="${selectedAgreement.party2Sign}" alt="${selectedAgreement.party2Name}的签名" style="max-width:200px; max-height:80px; margin-top:10px; border:1px solid #eee;"/>`
+                                  : ""
+                              }
+                              <p>签署时间：${new Date(
+                                selectedAgreement.party2SignedAt
+                              ).toLocaleString("zh-CN")}</p>
+                          </div>`
+                      : ""
+                  }
+              </div>`
             : ""
         }
+      
       `;
 
       document.body.appendChild(printContainer);
@@ -236,20 +257,21 @@ export default function AgreementsList() {
                     }</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px; width: 25%; color: rgb(85, 85, 85);">参与方1:</td>
-                    <td style="padding: 8px; font-weight: 500;">${
-                      selectedAgreement.party1Name
-                    }</td>
+                    <td style="padding:8px; width:25%; color:#555;">参与方1:</td>
+                    <td style="padding:8px; font-weight:500;">
+                        ${selectedAgreement.party1Name}
+                    </td>
                   </tr>
                   <tr>
                     <td style="padding: 8px; width: 25%; color: rgb(85, 85, 85);">身份证号:</td>
                     <td style="padding: 8px;">${selectedAgreement.party1ID}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px; width: 25%; color: rgb(85, 85, 85);">参与方2:</td>
-                    <td style="padding: 8px; font-weight: 500;">${
-                      selectedAgreement.party2Name
-                    }</td>
+                  <tr>
+                    <td style="padding:8px; width:25%; color:#555;">参与方2:</td>
+                    <td style="padding:8px; font-weight:500;">
+                        ${selectedAgreement.party2Name}
+                    </td>
                   </tr>
                   <tr>
                     <td style="padding: 8px; width: 25%; color: rgb(85, 85, 85);">身份证号:</td>
@@ -316,6 +338,11 @@ export default function AgreementsList() {
                         <td style="padding: 10px; border-top: 1px solid ${borderColor}; font-weight: 500;">${
                             selectedAgreement.party1Name
                           } 已签署</td>
+                        <td style="padding:8px;">
+                          <img src="${
+                            selectedAgreement.party1Sign
+                          }" alt="参与方1签名" style="max-height:50px;">
+                        </td>
                       </tr>
                       <tr>
                         <td style="padding: 10px; border-bottom: 1px solid ${borderColor}; color: rgb(85, 85, 85);">签署时间:</td>
@@ -334,6 +361,11 @@ export default function AgreementsList() {
                         <td style="padding: 10px; border-top: 1px solid ${borderColor}; font-weight: 500;">${
                             selectedAgreement.party2Name
                           } 已签署</td>
+                        <td style="padding:8px;">
+                          <img src="${
+                            selectedAgreement.party2Sign
+                          }" alt="参与方1签名" style="max-height:50px;">
+                        </td>
                       </tr>
                       <tr>
                         <td style="padding: 10px; border-bottom: 1px solid ${borderColor}; color: rgb(85, 85, 85);">签署时间:</td>
@@ -428,11 +460,15 @@ export default function AgreementsList() {
           // 检查URL中是否有view参数
           const viewId = getQueryParam("view");
           if (viewId) {
-            const foundAgreement = parsed.find((a: any) => a.id === viewId);
+            const foundAgreement: Agreement = parsed.find(
+              (a: any) => a.id === viewId
+            );
             if (foundAgreement) {
               setSelectedAgreement(foundAgreement);
               setParty1Signed(!!foundAgreement.party1Signed);
               setParty2Signed(!!foundAgreement.party2Signed);
+              setMaleSign(foundAgreement.party1Sign);
+              setFemaleSign(foundAgreement.party2Sign);
             }
           }
         }
@@ -477,7 +513,7 @@ export default function AgreementsList() {
   };
 
   // 处理协议签署
-  const handleSign = (party: "party1" | "party2") => {
+  const handleSign = (party: "party1" | "party2", imageUrl: string) => {
     if (!selectedAgreement) return;
 
     try {
@@ -488,16 +524,20 @@ export default function AgreementsList() {
           if (a.id === selectedAgreement.id) {
             if (party === "party1") {
               setParty1Signed(true);
+              setMaleSign(imageUrl);
               return {
                 ...a,
                 party1Signed: true,
+                party1Sign: imageUrl,
                 party1SignedAt: new Date().toISOString(),
               };
             } else {
               setParty2Signed(true);
+              setFemaleSign(imageUrl);
               return {
                 ...a,
                 party2Signed: true,
+                party2Sign: imageUrl,
                 party2SignedAt: new Date().toISOString(),
               };
             }
@@ -538,6 +578,18 @@ export default function AgreementsList() {
 
       // 更新URL，但不导航
       window.history.replaceState(null, "", `/agreements?view=${id}`);
+    }
+  };
+
+  // 保存电子签名
+  const handleSaveSignature = (imageUrl: string) => {
+    setShowDigitalSignature(false);
+    if (isMaleSigning) {
+      setMaleSign(imageUrl);
+      handleSign("party1", imageUrl);
+    } else {
+      setFemaleSign(imageUrl);
+      handleSign("party2", imageUrl);
     }
   };
 
@@ -590,6 +642,16 @@ export default function AgreementsList() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="bg-base-200 p-4 rounded-lg">
                 <p className="font-medium">{selectedAgreement.party1Name}</p>
+                {maleSign && (
+                  <div className="mb-4">
+                    <img
+                      src={maleSign}
+                      alt="男性签名"
+                      className="border rounded-lg"
+                      style={{ width: "100px", height: "auto" }}
+                    />
+                  </div>
+                )}
                 <p className="text-sm text-base-content/70">
                   身份证号: {selectedAgreement.party1ID}
                 </p>
@@ -598,7 +660,10 @@ export default function AgreementsList() {
                     <div className="badge badge-success gap-2">已签署</div>
                   ) : (
                     <button
-                      onClick={() => setShowDigitalSignature("party1")}
+                      onClick={() => {
+                        setShowDigitalSignature(true);
+                        setIsMaleSigning(true);
+                      }}
                       className="btn btn-sm btn-outline"
                     >
                       点击签署
@@ -609,6 +674,16 @@ export default function AgreementsList() {
 
               <div className="bg-base-200 p-4 rounded-lg">
                 <p className="font-medium">{selectedAgreement.party2Name}</p>
+                {femaleSign && (
+                  <div className="mb-4">
+                    <img
+                      src={femaleSign}
+                      alt="女性签名"
+                      className="border rounded-lg"
+                      style={{ width: "100px", height: "auto" }}
+                    />
+                  </div>
+                )}
                 <p className="text-sm text-base-content/70">
                   身份证号: {selectedAgreement.party2ID}
                 </p>
@@ -617,7 +692,10 @@ export default function AgreementsList() {
                     <div className="badge badge-success gap-2">已签署</div>
                   ) : (
                     <button
-                      onClick={() => setShowDigitalSignature("party2")}
+                      onClick={() => {
+                        setShowDigitalSignature(true);
+                        setIsMaleSigning(false);
+                      }}
                       className="btn btn-sm btn-outline"
                     >
                       点击签署
@@ -696,51 +774,14 @@ export default function AgreementsList() {
         </div>
 
         {/* 数字签名弹窗 */}
-        {showDigitalSignature !== false && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-base-100 p-6 rounded-lg max-w-md w-full">
-              <h3 className="text-xl font-semibold mb-4">数字签名确认</h3>
-
-              <p className="mb-6">
-                您正在为以下协议进行数字签名:
-                <br />
-                <span className="font-medium">
-                  {selectedAgreement.agreementTitle}
-                </span>
-              </p>
-
-              <p className="mb-6">
-                <strong>签名方:</strong>{" "}
-                {showDigitalSignature === "party1"
-                  ? selectedAgreement.party1Name
-                  : selectedAgreement.party2Name}
-              </p>
-
-              <div className="form-control mb-6">
-                <label className="flex items-center gap-2 cursor-pointer justify-center">
-                  <input type="checkbox" className="checkbox" required />
-                  <span>我确认自愿签署此协议，并了解其法律效力</span>
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setShowDigitalSignature(false)}
-                  className="btn btn-outline"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={() => {
-                    handleSign(showDigitalSignature);
-                    setShowDigitalSignature(false);
-                  }}
-                  className="btn btn-primary"
-                >
-                  确认签署
-                </button>
-              </div>
-            </div>
+        {showDigitalSignature && (
+          <div className="p-8">
+            <SignaturePad
+              width={600}
+              height={300}
+              onSave={handleSaveSignature}
+              onCancel={() => setShowDigitalSignature(false)}
+            />
           </div>
         )}
       </div>

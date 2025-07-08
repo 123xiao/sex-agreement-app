@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "@lukeed/uuid";
 import Link from "next/link";
 
 // 定义协议表单数据类型
